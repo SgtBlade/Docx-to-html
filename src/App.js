@@ -123,13 +123,16 @@ const App = () => {
 
   return (
     <div className="App">
-          <input className={style.uploadZone} type="file" onChange={(e) => showFile(e)} multiple />
-          <input className={style.create} type="button" onClick={showContent} value="ShowChapters" />
-          <input className={style.create} type="button" onClick={downloadFiles} value="Download" />
+      <div className={style.wrapper}>
+        
+          <input className={style.uploadZone} type="file" onChange={(e) => loadFile(e)} multiple />
+          <input className={`${style.button} ${style.showChapter}`} type="button" onClick={showContent} value="ShowChapters" />
+          <input className={style.button} type="button" onClick={() => {downloadFiles(true)}} value="Download individually" />
+          <input className={style.button} type="button" onClick={downloadFiles} value="Download" />
+      </div>
           <span className='error'></span>
-
           <section className='output'></section>
-    </div>
+      </div>
   );
 }
 

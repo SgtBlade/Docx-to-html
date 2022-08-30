@@ -1,12 +1,33 @@
 .uploadZone {
-    background-color: rgba(255, 194, 194, 0.883);
+    background-color: rgba(229, 229, 229, 0.883);
 
     padding: 50px 200px ;
-    z-index: -1;
-    border-radius: 10px;
     border: dotted 3px black;
+
+    grid-row: 1 / span 2;
 }
 
-.create {
+.showChapter {
+    grid-row: span 2;
+}
+
+.button {
     z-index: 5;
+
+    background-color: cadetblue;
+    border: solid 1px black;
+    cursor: pointer;
+    transition: background-color .3s;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.button:hover {
+    background-color: rgb(83, 139, 141);
+}
+
+.wrapper {
+    display: grid;
+    grid-template-columns: 4fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
 }
