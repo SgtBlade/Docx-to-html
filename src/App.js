@@ -51,12 +51,14 @@ const App = () => {
   
         let OGArticles = articles;
         OGArticles.push({chapter:chapterNumber, chapterContent: $parent})
+        OGArticles.sort((a, b) => a.chapter - b.chapter);
         setArticles(OGArticles)
   
       };
       reader.readAsBinaryString(file);
 
     })
+    console.log(articles)
   };
 
   const showContent = async () => {
@@ -115,7 +117,7 @@ const App = () => {
     var hiddenElement = document.createElement('a');
     hiddenElement.href = 'data:attachment/text,' + encodeURI(document.documentElement.outerHTML);
     hiddenElement.target = '_blank';
-    hiddenElement.download = 'myFile.html';
+    hiddenElement.download = 'Output.html';
     hiddenElement.click();
 }
 
@@ -125,7 +127,7 @@ const App = () => {
     <div className="App">
       <div className={style.wrapper}>
         
-          <input className={style.uploadZone} type="file" onChange={(e) => loadFile(e)} multiple />
+          <input className={style.uploadZone} type="file" onChange={(e) => showFile(e)} multiple />
           <input className={`${style.button} ${style.showChapter}`} type="button" onClick={showContent} value="ShowChapters" />
           <input className={style.button} type="button" onClick={() => {downloadFiles(true)}} value="Download individually" />
           <input className={style.button} type="button" onClick={downloadFiles} value="Download" />
