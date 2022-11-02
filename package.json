@@ -10,6 +10,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "safe-buffer": "^5.2.1",
+    "textract": "^2.5.0",
     "web-vitals": "^2.1.4",
     "xmldom": "^0.6.0"
   },

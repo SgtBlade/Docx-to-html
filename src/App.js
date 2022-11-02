@@ -1,22 +1,11 @@
 import './App.css';
-import PizZip from 'pizzip';
 import { useState } from 'react';
 import style from './App.module.css'
+
 
 const App = () => {
 
   const [articles, setArticles] = useState([])
-
-
-  //Required for the loadFile function
-  //found this online Answer 3: https://www.anycodings.com/questions/get-docx-file-contents-using-javascriptjquery
-  const str2xml = (str) => {
-    if (str.charCodeAt(0) === 65279) {
-        // BOM sequence
-        str = str.substr(1);
-    }
-    return new DOMParser().parseFromString(str, "text/xml");
-  }
 
   //Loading the files
   const loadFile = async (e) => {
@@ -29,42 +18,58 @@ const App = () => {
       const reader = new FileReader();
       //Keeping an index and preparing the title
       const docIndex = key;
-      const chapterName = file.name.replace(".docx", "");
+      const chapterName = file.name.replace(".rtf", "");
 
       //Here starts the actual reading of the file
       reader.onload = async (readerEvt) => {
 
         //Standard things to read the file
-        const content = readerEvt.target.result;
-        const zip = new PizZip(content);
-        const xml = str2xml(zip.files["word/document.xml"].asText());
-
-        //Getting all the text from the file
-        const paragraphsXml = xml.getElementsByTagName("w:p");
+        let content = readerEvt.target.result.split('lang9')[1].split("\\par");
   
         //Prepare a parent article. This article will include all the data from one word file
         const $parent = document.createElement('article')
         const $title = document.createElement('h2');
-        $title.textContent = chapterName;
+        $title.textContent = `Chapter ${chapterName}`;
         //If you do not want a new title for every new file, just comment the line below out
         $parent.appendChild($title)
         
         //We need another conversion to array so that we can call a foreach
-        await Array.prototype.forEach.call(paragraphsXml, (paragraphsXmlItem) => {
-          //Getting all the text elements & creating a new paragraph
-          const xmlItems = paragraphsXmlItem.getElementsByTagName("w:t");
-          const $paragraph = document.createElement('p');
-          //I hadn't tried this method for a "for" loop yet, it's pretty much a foreach
-          for (const el of xmlItems){$paragraph.textContent += el.textContent;}
-          //Just filtering out the empty lines (it happens sometimes)
-          if($paragraph.innerHTML !== '') $parent.appendChild($paragraph)
+        await Array.prototype.forEach.call(content, (paragraphItem, paragraphKey) => {
+          
+          if(paragraphItem !== "\r\n" 
+          &&   paragraphItem !== " \\fs20" 
+          &&   paragraphItem !== " \\fs32" 
+          &&   !paragraphItem.includes("}")){
+            const $paragraph = document.createElement('p');
+            $paragraph.textContent = paragraphItem
+              .replaceAll("\\ldblquote ", "\"")
+              .replaceAll("\\rdblquote", "\"")
+              .replaceAll("\\rquote ", "\'")
+              .replaceAll("\\\lquote", "\"")
+              .replaceAll("\\rquote ", "\'")
+              .replaceAll("!\\rquote ", "\'")
+              .replaceAll("!\rquote ", "\'")
+              .replaceAll("\\'85", "...")
+              .replaceAll("\\b0", "")
+              .replaceAll("\\b5", "")
+              .replaceAll("\\b", "")
+              .replaceAll("\\fs32", "")
+              .replaceAll("\\fs20", "")
+              .replaceAll("\\line", "")
+              .replaceAll("TO BE CONTINUED...", "");
+
+              $paragraph.textContent.replaceAll("  ", " ")
+              if($paragraph.textContent !== "" && $paragraph.textContent !== " ") $parent.appendChild($paragraph)
+          }
+
         })
   
         //Adding the new articles to the array
         let OGArticles = articles;
-        OGArticles.push({chapter:docIndex, chapterContent: $parent})
+        OGArticles.push({chapter: parseInt(chapterName), chapterContent: $parent})
         setArticles(OGArticles)
-  
+        
+        
       };
       reader.readAsBinaryString(file);
 
@@ -76,14 +81,16 @@ const App = () => {
     let usingArticles = articles;
     //I didn't use a docIndex but sorted based on the name. If you change the above code a little (docIndex variable)
     //you could re-enable this sort function if they weren't sorted yet
-    //usingArticles = usingArticles.sort((a, b) => a.chapter - b.chapter);
+    usingArticles = usingArticles.sort((a, b) => a.chapter - b.chapter);
     usingArticles.forEach(article => document.querySelector('.output').appendChild(article.chapterContent))
+    setArticles(usingArticles);
   }
 
   //Downloading the files
   const downloadFiles = async (individual = false) => {
 
     if(!individual){
+      console.log('testing here this okey')
       //Clearing everything on the page, we don't need any clutter
       const $body = document.querySelector('body');
       const $head = document.querySelector('head');
@@ -95,7 +102,7 @@ const App = () => {
       $body.appendChild($h1);
 
       //Adding all the articles/documents to a clean page
-      await articles.forEach(async element => {
+      articles.forEach(async (element, key) => {
           $body.appendChild(element.chapterContent)
       })
 
@@ -140,7 +147,7 @@ const App = () => {
           <input className={style.uploadZone} type="file" onChange={(e) => loadFile(e)} multiple />
           <input className={`${style.button} ${style.showChapter}`} type="button" onClick={showContent} value="ShowChapters" />
           <input className={style.button} type="button" onClick={() => {downloadFiles(true)}} value="Download individually" />
-          <input className={style.button} type="button" onClick={downloadFiles} value="Download" />
+          <input className={style.button} type="button" onClick={()=> {downloadFiles(false)}} value="Download" />
       </div>
           <span className='error'></span>
 
