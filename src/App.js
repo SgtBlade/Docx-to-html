@@ -45,7 +45,7 @@ const App = () => {
               .replaceAll("\\ldblquote ", "\"")
               .replaceAll("\\rdblquote", "\"")
               .replaceAll("\\rquote ", "\'")
-              .replaceAll("\\\lquote", "\"")
+              .replaceAll("\\\lquote", "\'")
               .replaceAll("\\rquote ", "\'")
               .replaceAll("!\\rquote ", "\'")
               .replaceAll("!\rquote ", "\'")
